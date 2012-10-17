@@ -9,6 +9,7 @@
  */
 package com.herakles.service.domain;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,6 +24,7 @@ public class ScoreResponse{
 	
 	private Map<String,String> debugInfo;
 	private Map<String,ScoreRequest> score;
+	private ArrayList<PlayerSkill> skill;
 	
 	public void setDebugInfo(Map<String, String> map) {
 		this.debugInfo = map;
@@ -35,5 +37,11 @@ public class ScoreResponse{
 	}
 	public void setScore(Map<String, ScoreRequest> score) {
 		this.score = score;
+	}
+	public ArrayList<PlayerSkill> getSkill() {
+		return skill;
+	}
+	public void setSkill(ArrayList<PlayerSkill> s) {
+		this.skill = s;
 	}
 }

@@ -25,6 +25,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.herakles.service.api.HiScore;
+import com.herakles.service.domain.PlayerSkill;
 import com.herakles.service.domain.ScoreRequest;
 import com.herakles.service.domain.ScoreResponse;
 
@@ -89,6 +90,7 @@ public class HiScoreImpl implements HiScore{
 		ret.setScore(Collections.unmodifiableMap(Cache));
 		
 		setDebugInfo(debug, ret);
+		rankPalyers(ret);
 		return ret;
 	}	
 	public ScoreResponse get(String rank, boolean debug) {
@@ -162,5 +164,36 @@ public class HiScoreImpl implements HiScore{
 		Cache.remove(rank);
 		printCache();
 		return Response.status(204).build();
+	}
+	
+	private void rankPalyers(ScoreResponse ret) {
+		Hashtable<String, PlayerSkill> rank = new Hashtable<String, PlayerSkill>();
+		
+		for (int i=0; i<Cache.size(); i++){
+			ScoreRequest sr = Cache.get(""+i);
+			int aRank =  ((sr.getScoreOne()*100)/(sr.getScoreOne()+sr.getScoreTwo())) ;
+			int bRank =  ((sr.getScoreTwo()*100)/(sr.getScoreOne()+sr.getScoreTwo())) ;
+			
+			PlayerSkill tmp = (PlayerSkill) rank.get(sr.getPlayerOne());
+			if (tmp!=null ) {
+				aRank += tmp.getSkill();
+				aRank/=2;
+			}
+			rank.put(sr.getPlayerOne(), new PlayerSkill(sr.getPlayerOne(), aRank));
+			
+			tmp = (PlayerSkill) rank.get(sr.getPlayerTwo());
+			if (tmp!=null ) {
+				bRank += tmp.getSkill();
+				bRank/=2;
+			}
+			rank.put(sr.getPlayerTwo(), new PlayerSkill(sr.getPlayerTwo(), bRank));
+		}
+		
+		ArrayList<PlayerSkill> list = new ArrayList<PlayerSkill>();
+		list.addAll(rank.values());
+
+		Collections.sort(list); //put in descending order; if we change the comparator then we can do ascending order as natural-order 
+		ret.setSkill(list);
+		System.out.println("Players Ranked:"+list);
 	}
 }
